@@ -28,4 +28,4 @@ DA-SBR ueses ensemble Kalman filter (EnKF) based DA methods to assimilate observ
 2. The numerical model for subsurface flow at Hanford site is built using [PFLOTRAN](http://www.pflotran.org/), a massively parallel reactive flow and transport model for describing surface and subsurface processes
 3. The workflow is adapted to the supercomputers at [National Energy Research Scientific Computing Center (NERSC)](http://www.nersc.gov/)
 
-[!Estimated flux](https://github.com/lovingckw/DA-SBR/blob/master/Doc/temp/Picture1.jpg)
+![Estimated flux](https://github.com/lovingckw/DA-SBR/blob/master/Doc/temp/Picture1.jpg)
