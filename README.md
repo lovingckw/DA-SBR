@@ -29,4 +29,4 @@ DA-SBR ueses ensemble Kalman filter (EnKF) based DA methods to assimilate observ
 3. The workflow is adapted to the supercomputers at [National Energy Research Scientific Computing Center (NERSC)](http://www.nersc.gov/)
 
 Estimated flux:
-[!alt text](https://www.flickr.com/photos/164278148@N08/shares/5Fn8B6)
+[!alt text](https://github.com/lovingckw/DA-SBR/blob/master/Doc/temp/Picture1.jpg)
