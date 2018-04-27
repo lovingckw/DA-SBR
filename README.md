@@ -15,7 +15,7 @@ DA-SBR ueses ensemble Kalman filter (EnKF) based DA methods to assimilate observ
 |                   | 1.2 Extract geometry and properties |
 |                   | 1.3 Generate inputs for 1D hydro-thermal simulation |
 | 2. Data Assimilation | 2.1 Data input |
-|                      | 2.2 PFLOTRAN configuration |
+|                      | 2.2 PFLOTRAN input configuration |
 |                      | 2.3 EnKF implementation |
 | 3. Post-Processing | 3.1 Plot estimated permeability over time |
 |                    | 3.2 Calculate the vertical hydraulic exchange flux (HEF) |
