@@ -17,7 +17,7 @@ DA-SBR ueses ensemble Kalman filter (EnKF) based DA methods to assimilate observ
 | 2. [Data Assimilation](https://github.com/lovingckw/DA-SBR/blob/master/Data%20Assimilation.ipynb) | 2.1 Data input |
 |                      | 2.2 PFLOTRAN input configuration |
 |                      | 2.3 EnKF implementation |
-| 3. [Post-Processing](https://github.com/lovingckw/DA-SBR/blob/de59203c7399c596e7b24f05a147e28e63c7e23f/post-processing.ipynb) | 3.1 Plot hydraulic conductivity over time |
+| 3. [Post-Processing](https://github.com/lovingckw/DA-SBR/blob/de59203c7399c596e7b24f05a147e28e63c7e23f/post-processing.ipynb) | 3.1 Plot hydraulic conductivity  |
 |                    | 3.2 Plot the vertical hydraulic exchange flux (HEF) |
 |                    | 3.3 Compare the calculated HEF with that from temperature method|
 
