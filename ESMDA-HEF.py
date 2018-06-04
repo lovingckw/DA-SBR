@@ -9,14 +9,14 @@ import matplotlib
 import matplotlib.pyplot as plt
 import math
 import h5py
-import util.py
-#from subprocess import call
+import util as util
+import subprocess 
 
 #--------Read In User Specified Input------------------
 
 print('\n Reading in User Specified Parameters.')
-finput = open("User_Specified_Parameters.txt", 'r')
-fpflotran = open("1dthermal.in", 'r')
+finput = open("./src/user_specified_parameters.txt", 'r')
+fpflotran = open("./dainput/1dthermal.in", 'r')
 input_array = finput.readlines()
 pflotranin = fpflotran.readlines()
 finput.close()
@@ -35,9 +35,11 @@ for line in input_array:
     exec(line)
 print(' Done.')
 
-#subprocess.call("rm -rf pflotran_mc",stdin=None, stdout=None,stderr=None,shell=False)
-#subprocess.call("mkdir pflotran_mc",stdin=None, stdout=None,stderr=None,shell=False)
-
+subprocess.call("rm -rf ./pflotran",stdin=None, stdout=None,stderr=None,shell=True)
+subprocess.call("mkdir ./pflotran",stdin=None, stdout=None,stderr=None,shell=True)
+for ireaz in range(nreaz):
+    subprocess.call("mkdir ./pflotran/%d/" % ireaz,stdin=None, stdout=None,stderr=None,shell=True)
+    
 day_to_sec = 24*3600
 nz = int(hz/dz) # number of grid blocks 
 z = (np.arange(-hz,0,dz)+np.arange(-hz+dz,dz,dz))/2
@@ -50,10 +52,16 @@ obs_time = obs[:,0]
 day_to_sec = 24*3600
 
 perm = np.zeros((ntime,nreaz))
+perm[0,:] = init_perm
 simu_time = np.zeros((ntime,2))
 
 for itime in range(0,ntime):
-    perm_update_index = np.arange(max(0,itime-mw_length+1),itime)
+    print("itime is %d" % itime)
+    if itime == 0:
+        perm_update_index = [0]
+    else:
+        perm_update_index = np.arange(max(0,itime-mw_length+1),itime)
+    print("perm_update_index: ",perm_update_index)
 #    print(perm_update_index)
     if itime == 0:
         simu_time[itime,:] = np.array([0,da_interval])
@@ -69,11 +77,11 @@ for itime in range(0,ntime):
     ncollect = len(collect_index)
     
     for iter in range(0,niter):
-       MakePflotranInput(pflotranin,simu_time,itime,ncollect,collect_times,perm_update_index,nreaz)
+       util.MakePflotranInput(pflotranin,simu_time,itime,ncollect,collect_times,perm_update_index,nreaz,da_interval,perm)
 
-       subprocess.call("./src/pflotran.sh {} {} pflotran-cori ".format(nreaz-1,ncore))
+       subprocess.call("./src/pflotran.sh {} {} pflotran-cori ".format(nreaz-1,ncore),stdin=None, stdout=None,stderr=None,shell=True)
 
-       simu_ensemble = GenerateSimuEnsemble(nobs,obs_coord,z,nreaz,collect_times)
+       simu_ensemble = util.GenerateSimuEnsemble(nobs,obs_coord,z,nreaz,collect_times)
        
        obs_sd = obs_sd_ratio*np.delete(np.squeeze(obs[collect_index,:],axis=0),0,1)
        obs_sd = obs_sd*(math.sqrt(alpha))

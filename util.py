@@ -1,4 +1,6 @@
-def MakePflotranInput(pflotranin,simu_time,itime,ncollect,collect_times,perm_update_index,nreaz):
+import numpy as np
+
+def MakePflotranInput(pflotranin,simu_time,itime,ncollect,collect_times,perm_update_index,nreaz,da_interval,perm):
     #fpflotran = open("1dthermal.in", 'r')
     #pflotranin = fpflotran.readlines()
     # creat a checkpoint at the end of simulation
@@ -17,12 +19,12 @@ def MakePflotranInput(pflotranin,simu_time,itime,ncollect,collect_times,perm_upd
     pflotranin[lindex] = "      FINAL_TIME "+ np.array_str(simu_time[itime,1])+" sec"+"\n"
     
     # generate observation 
-    snapshot_lindex =  [i for i, s in enumerate(pflotranin) if "SNAPSHOT_FILE" in s][0]-1
+    snapshot_lindex =  [i for i, s in enumerate(pflotranin) if "SNAPSHOT_FILE" in s][0]
     obs_card = "    TIMES sec   "
     npl = 3 
     nline = np.floor_divide(ncollect,npl)
     if nline == 0 or nline == 1:
-        obs_card = obs_card+" "+np.array_str(collect_times[0])
+        obs_card = obs_card+" "+np.array_str(collect_times[0])+"\n"
     else:
         for iline in range(1,nline):
             obs_card = obs_card+np.array_str(collect_times[((iline-1)*npl+1):(iline*npl)])+"\\"
@@ -34,8 +36,8 @@ def MakePflotranInput(pflotranin,simu_time,itime,ncollect,collect_times,perm_upd
     #prepare strata_card
     strata_card_lindex = [i for i, s in enumerate(pflotranin) if "STRATA" in s][0]-1
     strata_card = ["STRATA\n",
-                   "REGION\n",
-                   "    MATERIAL Perm 0\n",
+                   "    REGION all\n",
+                   "    MATERIAL Perm0\n",
                    "    START_TIME 0 sec\n",
                    "    FINAL_TIME 0 sec\n",
                    "END\n",
@@ -45,7 +47,7 @@ def MakePflotranInput(pflotranin,simu_time,itime,ncollect,collect_times,perm_upd
     
     #generate new strata card
     for jtime in perm_update_index:
-        strata_card[2] = "  MATERIAL Perm "+str(jtime)+"\n"
+        strata_card[2] = "  MATERIAL Perm"+str(jtime+1)+"\n"
         if jtime == perm_update_index[0]:
             strata_card[3] = "  START_TIME "+"0 sec"+"\n"
         else:
@@ -64,10 +66,10 @@ def MakePflotranInput(pflotranin,simu_time,itime,ncollect,collect_times,perm_upd
     perm_card_new = list()
     
     for ireaz in range(nreaz):
-        perm_card_new.clear()
+        del perm_card_new[:]
         for jtime in perm_update_index:
-            perm_card[0] = "MATERIAL_PROPERTY Perm"+str(jtime)+"\n"
-            perm_card[1] = "  ID "+str(jtime)+"\n"
+            perm_card[0] = "MATERIAL_PROPERTY Perm"+str(jtime+1)+"\n"
+            perm_card[1] = "  ID "+str(jtime+1)+"\n"
             perm_card[perm_value_cardindex] = "  PERM_ISO "+str(perm[jtime,ireaz])+"\n"
             perm_card_copy = perm_card[:] 
             perm_card_new = perm_card_new+perm_card_copy
