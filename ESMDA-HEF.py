@@ -50,6 +50,7 @@ nobs = len(obs_coord)
 ntime = np.shape(obs)[0]-1
 obs_time = obs[:,0]
 day_to_sec = 24*3600
+pflotran_exe = "~/pflotran-cori"
 
 perm = np.zeros((ntime,nreaz))
 perm[0,:] = init_perm
@@ -58,7 +59,7 @@ simu_time = np.zeros((ntime,2))
 for itime in range(0,ntime):
     print("itime is %d" % itime)
     if itime == 0:
-        perm_update_index = [0]
+        perm_update_index = np.array([0])
     else:
         perm_update_index = np.arange(max(0,itime-mw_length+1),itime)
     print("perm_update_index: ",perm_update_index)
@@ -75,12 +76,13 @@ for itime in range(0,ntime):
     collect_index = np.where((obs_time > collect_start) & (obs_time <= simu_time[itime,1]))
     collect_times = obs_time[collect_index]
     ncollect = len(collect_index)
-    
+    simu_ensemble = np.zeros((nreaz,nobs*len(collect_times)))
+
     for iter in range(0,niter):
        util.MakePflotranInput(pflotranin,simu_time,itime,ncollect,collect_times,perm_update_index,nreaz,da_interval,perm)
 
-       subprocess.call("./src/pflotran.sh {} {} pflotran-cori ".format(nreaz-1,ncore),stdin=None, stdout=None,stderr=None,shell=True)
-
+       subprocess.call("./src/pflotran.sh {} {} {} ".format(nreaz-1,ncore,pflotran_exe),stdin=None, stdout=None,stderr=None,shell=True)
+        
        simu_ensemble = util.GenerateSimuEnsemble(nobs,obs_coord,z,nreaz,collect_times)
        
        obs_sd = obs_sd_ratio*np.delete(np.squeeze(obs[collect_index,:],axis=0),0,1)
@@ -93,7 +95,9 @@ for itime in range(0,ntime):
        for jtime in perm_update_index:
            state_vector[:,loc_j] = np.log(perm[jtime,:])
            loc_j = loc_j+1
-           
+       
+       print("state_vector size: ",state_vector)
+       print("simu_ensemble size: ", simu_ensemble)    
        cov_state_simu = np.cov(state_vector,simu_ensemble)
        cov_simu = np.cov(simu_ensemble,simu_ensemble)
        inv_cov_simuAddobs = sp.linalg.inv(cov_simu+np.square(np.diag(np.squeeze(obs_sd))))

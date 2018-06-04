@@ -1,4 +1,5 @@
 import numpy as np
+import h5py 
 
 def MakePflotranInput(pflotranin,simu_time,itime,ncollect,collect_times,perm_update_index,nreaz,da_interval,perm):
     #fpflotran = open("1dthermal.in", 'r')
@@ -90,10 +91,12 @@ def GenerateSimuEnsemble(nobs,obs_coord,z,nreaz,collect_times):
     for ireaz in range(nreaz):
         obs_temp = np.zeros(nobs*len(collect_times))
         jj = 0
+#        print("collect_times:",collect_times)
         for collect_itime in collect_times:
             h5_file = h5py.File("./pflotran/%d/1dthermal.h5" % ireaz,'r')
-            key = "Time:"+str(" %12.5E" % collect_itime)+" s/Temperature [C]"
-            obs_temp[jj*nobs:(jj+1)*nobs] = h5_file[key][0][0][obs_cell]
+            key = "Time:"+str(" %12.5E" % collect_itime)+" s"
+            group = "Temperature [C]"
+            obs_temp[jj*nobs:(jj+1)*nobs] = h5_file[key][group][0][0][obs_cell]
             jj = jj+1
         simu_ensemble[ireaz,:] = obs_temp
         h5_file.close()
