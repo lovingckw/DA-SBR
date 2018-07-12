@@ -48,11 +48,12 @@ subprocess.call("mkdir ./pflotran",stdin=None, stdout=None,stderr=None,shell=Tru
 
     
 day_to_sec = 24*3600
-nz = int(hz/dz) # number of grid blocks 
+nz = int(hz/dz) 
 z = (np.arange(-hz,0,dz)+np.arange(-hz+dz,dz,dz))/2
-init_hy_cond = np.exp(np.random.normal(log_hy_cond_mean,log_hy_cond_sd,nreaz))
-np.savetxt("./figure/init_hy_cond.txt",init_hy_cond)
-init_th_cond = np.random.normal(th_cond_mean,th_cond_sd,nreaz)
+init_logperm = np.random.normal(logperm_mean,logperm_sd,nreaz)
+init_perm = np.exp(init_logperm)
+init_hy_cond = init_perm*w_den*g*day_to_sec/w_vis
+
 for x in range(nreaz):
     init_hy_cond[x] = random.randint(1,100)
 init_perm = init_hy_cond*w_vis/w_den/g/day_to_sec
