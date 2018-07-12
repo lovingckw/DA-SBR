@@ -1,29 +1,30 @@
-# number of cores
-ncore = 64
-
 # configure the ensemble smoother-multiple data assimilation (ES-MDA) scheme.
-mw_length = 24 # unit: hr, moving window that the K is dynamic 
-nreaz = 5 
-niter = 4
-alpha = 1 
-obs_sd_ratio = 0.01
-da_interval = 3600
+nreaz = 100 # number of realizations
+ncore = 100 # number of cores
+niter = 1 # number of iterations
+alpha = 1 # coefficient for each iteration
+obs_sd_ratio = 0.01 # observation disturbation
+da_interval = 3600 # data assimilation time interval
 
 # configure 1-D hydro-thermal forward model
-hz = 0.64 # unit: m, height of the 1-D column
-dz = 0.01 # unit: m, grid dimension, usually 0.01 m 
-w_den = 1000 
-w_vis = 0.001
-th_cond = 0.93
-g = 9.81
-porosity = 0.43
+hz = 0.65 # height of the 1-D column
+dz = 0.01 # grid dimension, usually 0.01 m 
+w_den = 1000 # water density
+w_vis = 0.001 # water viscosity
+th_cond = 0.93 # thermal conductivity
+g = 9.81 # gravitational constant
+porosity = 0.43 # porosity
 
 # configure observation points and path to data file 
-obs_coord = [-0.04,-0.24]
-path_to_obs_data = 'dainput/obs.dat'
+obs_coord = [-0.04,-0.24] # locations of observation points [m]
+path_to_obs_data = 'dainput/obs.dat' #path to observation data
 
 # configure prior permability field
-hy_cond_mean = 0
-hy_cond_sd = 0.5
-perm_range = [1e-12,1e-8]
-  
+logperm_mean = -24 # mean of log permeability
+logperm_sd = 2 # s.d. of log permeability
+perm_range = [1e-13,1e-10] # permeability range
+ 
+# configure prior thermal conductivity
+th_cond_mean = 1.5 # mean of thermal conductivity
+th_cond_sd = 0.5 # s.d of thermal conductivity
+th_cond_range = [0.9, 2.5] # thermal conductivity range
