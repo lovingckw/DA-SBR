@@ -81,11 +81,7 @@ kalman_gain_output = np.zeros((mw_length,ntime))
 FNULL = open(os.devnull,'w')
 
 for itime in range(0,ntime):
-    print(itime)
-    ftest.write("itime is: {} \n \n".format(itime))
-
     simu_time[itime,:] = np.array([itime*da_interval,(itime+1)*da_interval])
-    ftest.write("simu_time[itime,:] is:{} \n".format(simu_time[itime,:]))
     
     collect_start = 0
     if (itime>0):
@@ -97,28 +93,19 @@ for itime in range(0,ntime):
     simu_ensemble = np.zeros((nobs*len(collect_times),nreaz))
 
     for itera in range(0,niter):
-#       util.GeneratePermDataset(itime,nreaz,perm,nz,dataset_path)
-#       
-#       util.GenerateThermalcondDataset(itime,nreaz,th_cond,nz,dataset_path)
-       util.GenerateDbase(itime,itera,nreaz,perm,th_cond)
-       
+       util.GenerateDbase(itime,itera,nreaz,perm,th_cond)       
        util.MakePflotranInput(pflotranin,simu_time,itime,ncollect,collect_times,da_interval)
        
        bash_start = datetime.datetime.now()
        subprocess.call("./src/pflotran.sh {} {} {} ".format(nreaz,ncore,pflotran_exe),stdin=None, stdout=FNULL,stderr=None,shell=True)
        bash_end = datetime.datetime.now()
-       print("bash time is: {} \n".format(bash_end-bash_start))
        
        simu_ensemble = util.GenerateSimuEnsemble(nobs,obs_coord,z,nreaz,collect_times)
 
-       ftest.write("simu_ensemble is:{} \n".format(simu_ensemble))
        obs_sd = obs_sd_ratio*np.delete(np.squeeze(obs[collect_index,:],axis=0),0,1)
        obs_sd = obs_sd*(math.sqrt(alpha))
 
-#       obs_ensemble = np.repeat(np.transpose(np.delete(obs[collect_index],0,1)),nreaz,1)+np.matmul(np.diag(np.squeeze(obs_sd)),np.random.normal(0,1,nreaz*nobs*ncollect).reshape(nobs*ncollect,nreaz))
-
        obs_ensemble = np.repeat(np.transpose(np.delete(obs[collect_index],0,1)),nreaz,1)+np.diag(obs_sd.flatten('C'))@np.random.normal(0,1,nreaz*nobs*ncollect).reshape(nobs*ncollect,nreaz)       
-       ftest.write("obs_sd is:{} \n".format(obs_sd))
        
        #update
        state_vector = np.zeros((2,nreaz))
@@ -126,32 +113,17 @@ for itime in range(0,ntime):
        state_vector[1,:] = th_cond[itime,:]
        
        cov_state_simu = np.zeros((2,nobs))
-#       cov_state_simu[0,0] = np.cov(state_vector[0,:],simu_ensemble[0,:])[0,1]
-#       cov_state_simu[0,1] = np.cov(state_vector[0,:],simu_ensemble[1,:])[0,1]
-#       cov_state_simu[1,0] = np.cov(state_vector[1,:],simu_ensemble[0,:])[0,1]
-#       print("cov_state_simu_ori is {} \n".format(np.cov(state_vector,simu_ensemble)))
        cov_state_simu = np.cov(state_vector,simu_ensemble)[0:2,2:]
-#       print("cov_state_simu is {} \n".format(cov_state_simu))       
        cov_simu = np.cov(simu_ensemble)
-       ftest.write("cov_state-simu is: {} \n".format(cov_state_simu))
-       ftest.write("cov_simu is: {}".format(cov_simu))
-#       inv_cov_simuAddobs = la.inv(cov_simu+np.square(np.diag(np.squeeze(obs_sd))))
 
        if nobs == 1:
          inv_cov_simuAddobs = np.array([1/(cov_simu+np.square(np.diag(obs_sd)))])
        else:
          inv_cov_simuAddobs = la.inv(cov_simu+np.square(np.diag(obs_sd)))    
        
-#       print("inv_cov_simuAddobs is: {} \n".format(inv_cov_simuAddobs))      
-       ftest.write("inv_cov_simuAddobs is: {} \n".format(inv_cov_simuAddobs))
-       kalman_gain = cov_state_simu@inv_cov_simuAddobs
-       
-#       if(itime >24):
-#           kalman_gain_output[:,itime] = kalman_gain[:,0]
+       kalman_gain = cov_state_simu@inv_cov_simuAddobs       
            
-       ftest.write("kalman_gain is: {} \n".format(kalman_gain))
        state_vector = state_vector+kalman_gain@(obs_ensemble-simu_ensemble)
-       ftest.write("state_vector is: {} \n".format(state_vector))
 
        perm[itime,:] = np.exp(state_vector[0,:]) # no +1
        perm[itime,:][perm[itime,:]>perm_range[1]] = perm_range[1]
@@ -165,7 +137,7 @@ for itime in range(0,ntime):
        # prepare input for next timestep
        perm[itime+1,:] = perm[itime,:]
        th_cond[itime+1,:] = th_cond[itime,:]
-       ftest.write("perm[itime+1,:] is: {} \n".format(perm[itime+1,:]))
+    
        #disturb perm
        perm_temp = np.log(perm[itime+1,:])
        perm_temp = perm_temp+np.random.normal(0,np.sqrt(max(np.square(init_logperm_sd)-np.square(np.std(perm_temp)),0)),nreaz)
@@ -179,7 +151,7 @@ for itime in range(0,ntime):
               
 np.savetxt("./figure/perm.txt",perm)
 time_end = datetime.datetime.now()
-time_cost = time.end-time.start
+time_cost = time_end-time_start
 with open("timecost.txt", mode='w') as file:
     file.write('%s.\n'.format(timecost))
 fpflotran.close()
