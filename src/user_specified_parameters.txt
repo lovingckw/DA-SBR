@@ -1,34 +1,29 @@
-# number of cores
-ncore = 64
-
 # configure the ensemble smoother-multiple data assimilation (ES-MDA) scheme.
-mw_length = 1 # unit: hr, moving window that the K is dynamic 
-nreaz = 100
-ncore = 200
-niter = 1
-alpha = 1 
-obs_sd_ratio = 0.01
-da_interval = 3600
+nreaz = 100 # number of realizations
+ncore = 100 # number of realizations, equal to the number of realizations in this case as the 1D hydro-thermal model is simple
+niter = 5 # number of iterations
+alpha = 5 # inflation coefficients, equal to the number of iterations
+obs_sd_ratio = 0.001 # ratio of observation disturbance to the observation value
+obs_interval = 3600 # time interval for data assimilation 
 
 # configure 1-D hydro-thermal forward model
 hz = 0.65 # unit: m, height of the 1-D column
-dz = 0.01 # unit: m, grid dimension, usually 0.01 m 
-w_den = 1000 
-w_vis = 0.001
-th_cond = 0.93
-g = 9.81
-porosity = 0.43
+dz = 0.01 # unit: m, grid dimension, usually 0.01 m
+w_den = 1000 # unit: m3/kg, water density
+w_vis = 0.001 # unit: kg/(m*s)-1, water viscosity
+g = 9.81 # unit: m/s2, gravitational constant
+porosity = 0.43 # unit: NA, porocity
 
-# configure observation points and path to data file 
-obs_coord = [-0.04,-0.24]
-path_to_obs_data = 'dainput/obs.dat'
+# configure observation points and path to data file
+obs_coord = [-0.04] # depth of observation point below the top boundary
+path_to_obs_data = 'dainput/obs.dat' # path to the observation data file, default path is './dainpput'
 
 # configure prior permability field
-log_hy_cond_mean = 1
-log_hy_cond_sd = 0.3
-perm_range = [1e-13,1e-9]
- 
+logperm_mean = -28 # unit: m/d, mean of prior log(permeability)
+logperm_sd = 2 # unit: m/d, S.D. of prior log(permeability)
+perm_range = [1e-13,1e-10] # unit: m-2, range of permeability
+
 # configure prior thermal conductivity
-th_cond_mean = 1.5
-th_cond_sd = 0.3
-th_cond_range = [0.5, 3]
+th_cond_mean = 1.5 # unit: W/(mK)-1, mean of prior thermal conductivity
+th_cond_sd = 0.5 # unit: W/(mK)-1, S.D. of prior thermal conductivity
+th_cond_range = [0.9, 2.5] # unit: W/(mK)-1, range of thermal conductivity
